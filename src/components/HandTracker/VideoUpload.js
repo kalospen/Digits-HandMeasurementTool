@@ -36,7 +36,7 @@ function VideoUpload() {
   const camRes2 = useRef(1280);
   const dimension = useRef(3);
   const sampleFps = useRef(20);
-  const indexLength = useRef(9); // cm
+  const indexLength = useRef(9.0); // cm
   
   // Data
   const DataIn = useRef([]);
@@ -279,6 +279,10 @@ function VideoUpload() {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
 
+        // // Update camera resolution from actual video dimensions
+        camRes1.current = video.videoHeight;
+        camRes2.current = video.videoWidth;
+
         // Use a configurable sample FPS to reduce number of frames processed (faster)
         const frameRate = sampleFps.current || 10;
         const totalFrames = Math.ceil(video.duration * frameRate);
@@ -460,7 +464,7 @@ function VideoUpload() {
                 <img id="diagram_preload_tips_angles" src={diagram_wrist_tips_angles} alt="hand diagram" className="diagrams_src" />
               </div>
               <div className="grid-cell">
-                <h2>Index-Middle TIP (cm)</h2>
+                <h2>Index-Pinky Distance (cm)</h2>
                 <canvas ref={canvasRefIPDist} id="diagram_out" className="diagram" />
                 <img id="diagram_preload_IPDist" src={diagram_pinky_index_distance} alt="hand diagram" className="diagrams_src" />
               </div>
@@ -526,12 +530,12 @@ function VideoUpload() {
                       </select>
                     </div>
                     <div className="formItem">
-                      <label className="field-label">Index Finger MCT - TIP (cm)</label>
+                      <label className="field-label">Index Length (cm)</label>
                       <input
                         name="indexLength"
                         className="input-box"
                         type="number"
-                        step="1"
+                        step="0.1"
                         placeholder={indexLength.current}
                       />
                     </div>
