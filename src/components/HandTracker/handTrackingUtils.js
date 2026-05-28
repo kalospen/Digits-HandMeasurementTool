@@ -40,38 +40,37 @@ export const dotProduct = (v1, v2) =>{
     return result; 
   }
 
-export const calculateDistances = (coordinates, indexLength) => {
+export const calculateDistances = (coordinates, indexLength, camRes1, camRes2) => {
+    
+    const distances = [];
+    const pixelScale = indexLength/dbP(coordinates[6],coordinates[9], camRes1, camRes2); // coordinates[6],coordinates[9]
 
-    const distances = []; 
-    const pixelScale = indexLength/dbP(coordinates[6],coordinates[9]); // coordinates[6],coordinates[9]
-
-    distances.push(dbP(coordinates[5],coordinates[9])); //thumb tip to index dip
-    distances.push(dbP(coordinates[9],coordinates[13])); //index dip to middle dip
-    distances.push(dbP(coordinates[13],coordinates[17])); //middle dip to ring dip
-    distances.push(dbP(coordinates[17],coordinates[21])); //ring dip to pinky dip
-    distances.push(dbP(coordinates[9],coordinates[21])); //index dip to pinky dip
-    distances.push(dbP(coordinates[6],coordinates[9])); //index check
+    distances.push(dbP(coordinates[5],coordinates[9], camRes1, camRes2)); //thumb tip to index dip
+    distances.push(dbP(coordinates[9],coordinates[13], camRes1, camRes2)); //index dip to middle dip
+    distances.push(dbP(coordinates[13],coordinates[17], camRes1, camRes2)); //middle dip to ring dip
+    distances.push(dbP(coordinates[17],coordinates[21], camRes1, camRes2)); //ring dip to pinky dip
+    distances.push(dbP(coordinates[9],coordinates[21], camRes1, camRes2)); //index dip to pinky dip
+    distances.push(dbP(coordinates[6],coordinates[9], camRes1, camRes2)); //index check
 
     for(let i = 0; i < distances.length; i++){
-      console.log('Distance before scale:', distances[i]);
-      console.log('Pixel scale:', pixelScale);
-      distances[i] = distances[i]*pixelScale;
+        distances[i] = distances[i]*pixelScale;
     }
-
+    
     return distances;
+
   }
 
-export const calculateDistances2d = (coordinates,indexLength) => {
-    
-    const distances = []; 
-    const pixelScale = indexLength/dbP_2d(coordinates[6],coordinates[9]); // Could be an issue when measuring the full finger as when it's bent the distance will shorten.
+export const calculateDistances2d = (coordinates,indexLength, camRes1, camRes2) => {
 
-    distances.push(dbP_2d(coordinates[5],coordinates[9]));
-    distances.push(dbP_2d(coordinates[9],coordinates[13]));
-    distances.push(dbP_2d(coordinates[13],coordinates[17]));
-    distances.push(dbP_2d(coordinates[17],coordinates[21]));
-    distances.push(dbP_2d(coordinates[9],coordinates[21])); //index -> pinky
-    distances.push(dbP_2d(coordinates[6],coordinates[9])); //index check
+    const distances = [];
+    const pixelScale = indexLength/dbP_2d(coordinates[6],coordinates[9], camRes1, camRes2); // Could be an issue when measuring the full finger as when it's bent the distance will shorten.
+
+    distances.push(dbP_2d(coordinates[5],coordinates[9], camRes1, camRes2));
+    distances.push(dbP_2d(coordinates[9],coordinates[13], camRes1, camRes2));
+    distances.push(dbP_2d(coordinates[13],coordinates[17], camRes1, camRes2));
+    distances.push(dbP_2d(coordinates[17],coordinates[21], camRes1, camRes2));
+    distances.push(dbP_2d(coordinates[9],coordinates[21], camRes1, camRes2)); //index -> pinky
+    distances.push(dbP_2d(coordinates[6],coordinates[9], camRes1, camRes2)); //index check
 
     for(let i = 0; i < distances.length; i++){
       distances[i] = distances[i]*pixelScale;
@@ -81,19 +80,19 @@ export const calculateDistances2d = (coordinates,indexLength) => {
   }
 
   // Helper Func: Distance between two 3D points
-  export const dbP = (p1,p2) => {
+  export const dbP = (p1,p2, camRes1, camRes2) => {
     return parseFloat(Math.sqrt(
-        Math.pow((p2[0]-p1[0]),2)+
-        Math.pow((p2[1]-p1[1]),2)+
-        Math.pow((p2[2]-p1[2]),2)
+        Math.pow(((p2[0] * camRes1) - (p1[0] * camRes1)),2)+
+        Math.pow(((p2[1] * camRes2) - (p1[1] * camRes2)),2)+
+        Math.pow(((p2[2] * camRes1) - (p1[2] * camRes1)),2)
       ));
     // return Math.sqrt((p2[0]-p1[0])^2+(p2[2]-p1[2])^2+(p2[1]-p1[1])^2);
   }
   // Helper Func: Distance between two 2D points
-  export const dbP_2d = (p1,p2) => {
+  export const dbP_2d = (p1,p2, camRes1, camRes2) => {
     return parseFloat(Math.sqrt(
-        Math.pow((p2[0]-p1[0]),2)+
-        Math.pow((p2[1]-p1[1]),2)+
+        Math.pow(((p2[0] * camRes1) - (p1[0] * camRes1)),2)+
+         Math.pow(((p2[1] * camRes2) - (p1[1] * camRes2)),2)+
         0
       ));
     // return Math.sqrt((p2[0]-p1[0])^2+(p2[2]-p1[2])^2+(p2[1]-p1[1])^2);
