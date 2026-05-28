@@ -32,11 +32,11 @@ function VideoUpload() {
   const mpHandsRef = useRef(null);
   const minDetectionConfidence = useRef(0.75);
   const minTrackingConfidence = useRef(0.7);
-  const camRes1 = useRef(720);
-  const camRes2 = useRef(1280);
+  const camRes1 = useRef(640);
+  const camRes2 = useRef(480);
   const dimension = useRef(3);
   const sampleFps = useRef(20);
-  const indexLength = useRef(9.0); // cm
+  const indexLength = useRef(9); // cm
   
   // Data
   const DataIn = useRef([]);
@@ -114,15 +114,15 @@ function VideoUpload() {
     const anglesFF = calculateAngleFullFinger(vectorsFF, magnitudeFF, deltaTime);
 
     const angles = calculateAngle(vectors, magnitudes, deltaTime);
-
+      
     var distances = [];
-    if (dimension.current === 3) {
-      distances = calculateDistances(coordinates, indexLength.current);
+    if (parseInt(dimension.current) === 3) {
+      distances = calculateDistances(coordinates, indexLength.current, camRes1.current, camRes2.current);
     } else {
-      distances = calculateDistances2d(coordinates, indexLength.current);
+      distances = calculateDistances2d(coordinates, indexLength.current, camRes1.current, camRes2.current);
     }
     DataIn.current.push([currentFileName.current, angles.slice(1), distances.slice(0, 4), distances[4], anglesFF.slice(1)]);
-
+      
     // Diagrams
     const canvasElementDiagram = canvasRefDiagram.current;
     const canvasCtxDia = canvasElementDiagram.getContext("2d");//.setTransform(2, 0, 0, 2, 0, 0);
@@ -143,6 +143,7 @@ function VideoUpload() {
       296.5,//canvasElementDiagram.height*0.9,
       351//canvasElementDiagram.height
     );
+
     if(objArr.multiHandedness[0].label === "Right"){
       setDiagram(diagram_right);
       for(let i=1; i<16; i++){
@@ -280,8 +281,8 @@ function VideoUpload() {
         canvas.height = video.videoHeight;
 
         // // Update camera resolution from actual video dimensions
-        camRes1.current = video.videoHeight;
-        camRes2.current = video.videoWidth;
+       camRes1.current = video.videoWidth;
+       camRes2.current = video.videoHeight;
 
         // Use a configurable sample FPS to reduce number of frames processed (faster)
         const frameRate = sampleFps.current || 10;

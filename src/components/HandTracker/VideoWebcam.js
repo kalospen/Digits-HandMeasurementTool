@@ -35,8 +35,8 @@ function VideoWebcam(){
   const canvasRefTipsAngles = useRef(null);
   const canvasRefIPDist = useRef(null);
   const [diagram, setDiagram] = useState(diagram_right);
-  const camRes1 = useRef(720);
-  const camRes2 = useRef(1280);
+  const camRes1 = useRef(640);
+  const camRes2 = useRef(480);
   
 
   // Model Config
@@ -106,8 +106,6 @@ function VideoWebcam(){
       //Push the points to an array reducing to 6 decimal points 
       coordinates.push([parseFloat(xVal), parseFloat(yVal), parseFloat(zVal)]);
     }
-    
-
     const vectors = convertToVector(coordinates,camRes1.current,camRes2.current);
     const magnitudes =  calculateMagnitude(vectors);
 
@@ -117,12 +115,12 @@ function VideoWebcam(){
     const anglesFF = calculateAngleFullFinger(vectorsFF,magnitudeFF,deltaTime);
 
     const angles = calculateAngle(vectors, magnitudes, deltaTime);
-    
+      
     var distances = [];
     if(dimension.current === 3){
-      distances = calculateDistances(coordinates, indexLength.current);
+      distances = calculateDistances(coordinates, indexLength.current, camRes1, camRes2.current);
     } else {
-      distances = calculateDistances2d(coordinates, indexLength.current);
+      distances = calculateDistances2d(coordinates, indexLength.current, camRes1, camRes2.current);
     }
 
     DataIn.current.push(['Webcam',angles.slice(1),distances.slice(0,4),distances[4],anglesFF.slice(1)]);
@@ -147,6 +145,8 @@ function VideoWebcam(){
       296.5,//canvasElementDiagram.height*0.9,
       351//canvasElementDiagram.height
     );
+      
+    console.log(objArr.multiHandedness);
     if(objArr.multiHandedness[0].label === "Right"){
       setDiagram(diagram_right);
       for(let i=1; i<16; i++){
@@ -255,7 +255,7 @@ function VideoWebcam(){
         
   }
 
-  const onResults = (results)=>{
+const onResults = (results)=>{
   if (!canvasRef.current) return;
   if (!results || !results.image) return;
   if (!webCamRef.current || !webCamRef.current.video) return;
@@ -285,7 +285,7 @@ function VideoWebcam(){
     if(results.multiHandLandmarks){
       
       for(const landmarks of results.multiHandLandmarks) {
-        drawConnectors(canvasCtx, landmarks, hands.HAND_CONNECTIONS,
+        drawConnectors(canvasCtx, landmarks, Hands.HAND_CONNECTIONS,
           {color: "#00FF00", lineWidth: 2});
         drawLandmarks(canvasCtx, landmarks, {color: "#00ffd0", lineWidth: 1});//#5d0db8 purple
       
@@ -457,7 +457,7 @@ useEffect(() => {
                       <input name="sampleFps" className="input-box" type="number" step="1" placeholder={sampleFps.current}/>
                     </div>
                     <div className='formItem'>
-                      <label className="field-label">Index-Middle TIP (cm)</label>
+                      <label className="field-label">Index Length (cm)</label>
                       <input name="IndexLength" className="input-box" type="number" step="0.01" placeholder={indexLength.current} />
                     </div>
                     <div className='formItem'>
